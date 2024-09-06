@@ -6,12 +6,14 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.electronics.dto.UserDto;
 import com.electronics.model.User;
 import com.electronics.repository.UserRepository;
 import com.electronics.service.UserService;
 
+@Service
 public class UserServiceImpl implements UserService{
 	
 	@Autowired
