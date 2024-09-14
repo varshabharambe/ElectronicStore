@@ -12,12 +12,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.electronics.dto.ApiResponseMessage;
 import com.electronics.dto.UserDto;
 import com.electronics.service.UserService;
 
+import jakarta.validation.Valid;
 import lombok.Builder;
 
 @RestController
@@ -28,13 +30,13 @@ public class UserController {
 	UserService userService;
 	
 	@PostMapping
-	public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto){
+	public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto userDto){
 		UserDto userDtoResponse = userService.createUser(userDto);
 		return new ResponseEntity<>(userDtoResponse,HttpStatus.CREATED);
 	}
 	
 	@PutMapping("/{userId}")
-	public ResponseEntity<UserDto> updateUser(@RequestBody UserDto userDto, @PathVariable String userId){
+	public ResponseEntity<UserDto> updateUser(@Valid @RequestBody UserDto userDto, @PathVariable String userId){
 		UserDto userDtoResponse = userService.updateUser(userDto,userId);
 		return new ResponseEntity<>(userDtoResponse,HttpStatus.OK);
 	}
@@ -52,8 +54,13 @@ public class UserController {
 	}
 	
 	@GetMapping
-	public ResponseEntity<List<UserDto>> getAllUsers(){
-		return new ResponseEntity<>(userService.getAllUsers(),HttpStatus.OK);
+	public ResponseEntity<List<UserDto>> getAllUsers(
+			@RequestParam(value="pageNumber", defaultValue = "0", required = false) int pageNumber,
+			@RequestParam(value="pageSize", defaultValue = "10", required = false) int pageSize,
+			@RequestParam(value="sortBy", defaultValue = "name", required = false) String sortBy,
+			@RequestParam(value="sortDir", defaultValue = "asc", required = false) String sortDir
+			){
+		return new ResponseEntity<>(userService.getAllUsers(pageNumber,pageSize,sortBy,sortDir),HttpStatus.OK);
 	}
 	
 	@GetMapping("/{userId}")
