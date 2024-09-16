@@ -2,6 +2,7 @@ package com.electronics.service;
 
 import java.util.List;
 
+import com.electronics.dto.PageableResponse;
 import com.electronics.dto.UserDto;
 
 public interface UserService {
@@ -12,7 +13,7 @@ public interface UserService {
 	
 	public void deleteUser(String userId);
 	
-	public List<UserDto> getAllUsers(int pageNumber, int pageSize, String sortBy, String sortDir);
+	public PageableResponse<UserDto> getAllUsers(int pageNumber, int pageSize, String sortBy, String sortDir);
 	
 	public UserDto getUserById(String userId);
 	

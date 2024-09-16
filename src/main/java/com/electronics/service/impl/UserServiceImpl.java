@@ -1,19 +1,29 @@
 package com.electronics.service.impl;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import com.electronics.dto.PageableResponse;
 import com.electronics.dto.UserDto;
 import com.electronics.exception.ResourceNotFoundException;
+import com.electronics.helper.Helper;
 import com.electronics.model.User;
 import com.electronics.repository.UserRepository;
 import com.electronics.service.UserService;
@@ -21,11 +31,16 @@ import com.electronics.service.UserService;
 @Service
 public class UserServiceImpl implements UserService{
 	
+	private Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+	
 	@Autowired
 	private UserRepository userRepository;
 	
 	@Autowired
 	private ModelMapper mapper;
+	
+	@Value("${user.profile.image.path}")
+	private String imagePath;
 
 	@Override
 	public UserDto createUser(UserDto userDto) {
@@ -55,17 +70,32 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public void deleteUser(String userId) {
 		User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with given id not found"));
+		
+		//delete user profile image
+		String imageFullPath = imagePath + user.getImageName();
+		
+			Path path = Paths.get(imageFullPath);
+			try {
+				Files.delete(path);
+			}catch (NoSuchFileException ex) {
+				logger.info("No such file found !!");
+				ex.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		
+		
 		userRepository.delete(user);
 	}
 
 	@Override
-	public List<UserDto> getAllUsers(int pageNumber, int pageSize, String sortBy, String sortDir) {
+	public PageableResponse<UserDto> getAllUsers(int pageNumber, int pageSize, String sortBy, String sortDir) {
 		Sort sort = (sortDir.equalsIgnoreCase("desc")) ? Sort.by(sortBy).descending()  :Sort.by(sortBy).ascending();
 		Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
 		Page<User> pageRes = userRepository.findAll(pageable);
-		List<User> users = pageRes.getContent();
-		List<UserDto> usersDtoList = users.stream().map((user) -> entityToDto(user)).collect(Collectors.toList());
-		return usersDtoList;
+		PageableResponse<UserDto> response = Helper.getPageableResponse(pageRes, UserDto.class);
+		return response;
 	}
 
 	@Override
