@@ -1,9 +1,17 @@
 package com.electronics.service.impl;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,12 +28,17 @@ import com.electronics.service.CategoryService;
 
 @Service
 public class CategoryServiceImpl implements CategoryService{
+	
+	private Logger logger = LoggerFactory.getLogger(CategoryServiceImpl.class);
 
 	@Autowired
 	private CategoryRepository categoryRepository;
 	
 	@Autowired
 	ModelMapper mapper;
+	
+	@Value("${category.image.path}")
+	private String categoryImagePath;
 	
 	@Override
 	public CategoryDto create(CategoryDto categoryDto) {
@@ -51,6 +64,16 @@ public class CategoryServiceImpl implements CategoryService{
 	public void delete(String catId) {
 		Category cat = categoryRepository.findById(catId)
 				.orElseThrow(()->new ResourceNotFoundException("Category with given id not found !!"));
+		String fullCatImagePath = categoryImagePath + cat.getCoverImage();
+		Path path = Paths.get(fullCatImagePath);
+		try {
+			Files.delete(path);
+		} catch (NoSuchFileException ex) {
+			logger.info("No such file found !!");
+			ex.printStackTrace();
+		}catch (IOException e) {
+			e.printStackTrace();
+		}
 		categoryRepository.delete(cat);
 	}
 
