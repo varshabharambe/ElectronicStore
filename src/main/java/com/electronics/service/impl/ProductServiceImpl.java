@@ -21,11 +21,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import com.electronics.dto.CategoryDto;
 import com.electronics.dto.PageableResponse;
 import com.electronics.dto.ProductDto;
 import com.electronics.exception.ResourceNotFoundException;
 import com.electronics.helper.Helper;
+import com.electronics.model.Category;
 import com.electronics.model.Product;
+import com.electronics.repository.CategoryRepository;
 import com.electronics.repository.ProductRepository;
 import com.electronics.service.ProductService;
 
@@ -36,6 +39,9 @@ public class ProductServiceImpl implements ProductService{
 
 	@Autowired
 	ProductRepository  productRepository;
+	
+	@Autowired
+	CategoryRepository categoryRepository;
 	
 	@Autowired
 	ModelMapper mapper;
@@ -113,5 +119,38 @@ public class ProductServiceImpl implements ProductService{
 		Page<Product> prodList = productRepository.findByTitleContaining(subTitle, pageable);
 		return Helper.getPageableResponse(prodList, ProductDto.class);
 	}
+
+	@Override
+	public ProductDto createProductWithCategory(ProductDto productDto, String categoryId) {
+		Category cat = categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFoundException("Category with given id not found"));
+		String id = UUID.randomUUID().toString();
+		productDto.setProductId(id);
+		productDto.setAddedDate(new Date());
+		productDto.setCategory(mapper.map(cat, CategoryDto.class));
+		Product prod = mapper.map(productDto, Product.class);
+		Product savedProd = productRepository.save(prod);
+		return mapper.map(savedProd, ProductDto.class);
+	}
+
+	@Override
+	public ProductDto addProductInCategory(String productId, String categoryId) {
+		Product prod = productRepository.findById(productId).orElseThrow(()->new ResourceNotFoundException("Product with given id not found !!"));
+		Category cat = categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFoundException("Category with given id not found !!"));
+		prod.setCategory(cat);
+		Product savedProd = productRepository.save(prod);
+		return mapper.map(savedProd, ProductDto.class);
+	}
+
+	@Override
+	public PageableResponse<ProductDto> getAllProductsInCategory(String categoryId, int pageNumber, int pageSize,
+			String sortBy, String sortDir) {
+		Category cat = categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFoundException("Category with given id not found !!"));
+		Sort sort = sortDir.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+		Pageable pageable = PageRequest.of(pageNumber,pageSize,sort);
+		Page<Product> prodList = productRepository.findByCategory(cat, pageable);
+		PageableResponse<ProductDto> response = Helper.getPageableResponse(prodList, ProductDto.class);
+		return response;
+	}
+
 
 }

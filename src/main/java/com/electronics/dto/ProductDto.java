@@ -2,6 +2,8 @@ package com.electronics.dto;
 
 import java.util.Date;
 
+import com.electronics.model.Category;
+
 import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -33,4 +35,6 @@ public class ProductDto {
 	private boolean stock;
 	
 	private String productImageName;
+	
+	private CategoryDto category;
 }
