@@ -17,8 +17,8 @@ import lombok.Setter;
 @Builder
 public class CreateOrderRequestDto {
 
-	@NotBlank(message="Cart id is required !!")
-	private String cartId;
+//	@NotBlank(message="Cart id is required !!")
+//	private String cartId;
 	
 	@NotBlank(message="User id is required !!")
 	private String userId;

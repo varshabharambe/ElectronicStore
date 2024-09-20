@@ -48,7 +48,7 @@ public class OrderServiceImpl implements OrderService{
 	@Override
 	public OrderDto createOrder(CreateOrderRequestDto dto) {
 		User user = userRepository.findById(dto.getUserId()).orElseThrow(()->new ResourceNotFoundException("User not found with given id !!"));
-		Cart cart = cartRepository.findById(dto.getCartId()).orElseThrow(()-> new ResourceNotFoundException("Cart with given id not found !!"));
+		Cart cart = cartRepository.findByUser(user).orElseThrow(() -> new ResourceNotFoundException("Cart for user not found !!"));
 		List<CartItem> cartItems = cart.getCartItems();
 		if(cartItems.size()<=0) {
 			throw new BadApiRequestException("Invalid number of items in cart !!");
