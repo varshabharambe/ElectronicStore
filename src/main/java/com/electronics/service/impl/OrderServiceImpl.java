@@ -8,6 +8,10 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.electronics.dto.CreateOrderRequestDto;
@@ -15,6 +19,7 @@ import com.electronics.dto.OrderDto;
 import com.electronics.dto.PageableResponse;
 import com.electronics.exception.BadApiRequestException;
 import com.electronics.exception.ResourceNotFoundException;
+import com.electronics.helper.Helper;
 import com.electronics.model.Cart;
 import com.electronics.model.CartItem;
 import com.electronics.model.Order;
@@ -95,14 +100,20 @@ public class OrderServiceImpl implements OrderService{
 
 	@Override
 	public List<OrderDto> getOrdersOfUser(String userId) {
-		// TODO Auto-generated method stub
-		return null;
+		User user = userRepository.findById(userId).orElseThrow(()->new ResourceNotFoundException("User not found with given id !!"));
+		List<Order> orders = orderRepository.findByUser(user);
+		List<OrderDto> orderDtoList = orders.stream().map((order) -> {
+			return mapper.map(order, OrderDto.class);
+		}).collect(Collectors.toList());
+		return orderDtoList;
 	}
 
 	@Override
 	public PageableResponse<OrderDto> getAllOrders(int pageNumber, int pageSize, String sortBy, String sortDir) {
-		// TODO Auto-generated method stub
-		return null;
+		Sort sort = (sortDir.equalsIgnoreCase("desc")) ? Sort.by(sortBy).descending()  :Sort.by(sortBy).ascending();
+		Pageable pageable = PageRequest.of(pageNumber, pageSize);
+		Page<Order> allOrders = orderRepository.findAll(pageable);
+		return Helper.getPageableResponse(allOrders, OrderDto.class);
 	}
 
 }
