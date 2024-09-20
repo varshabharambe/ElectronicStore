@@ -23,35 +23,31 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name="product")
-public class Product {
+//order is reserved keyword in my sql so we have to use backticks to escape it
+@Table(name="`order`")
+public class Order {
 
 	@Id
-	private String productId;
+	private String orderId;
 	
-	private String title;
+	private String orderStatus;
+	private String paymentStatus;
+	private int orderAmount;
 	
-	@Column(length=10000)
-	private String description;
+	@Column(length=1000)
+	private String billingAddress;
 	
-	private int price;
+	private String billingPhone;
 	
-	private int discountedPrice;
+	private String billingName;
 	
-	private int quantity;
+	private Date orderedDate;
 	
-	private Date addedDate;
+	private Date deliveredDate;
 	
-	private boolean live;
+	@ManyToOne(fetch=FetchType.EAGER)
+	private User user;
 	
-	private boolean stock;
-	
-	private String productImageName;
-	
-	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "category_id")
-	private Category category;
-	
-//	@OneToMany(mappedBy = "product")
-//	private List<CartItem> cartItems = new ArrayList<>();
+	@OneToMany(mappedBy = "order", fetch=FetchType.EAGER,cascade = CascadeType.ALL)
+	private List<OrderItem> orderItems = new ArrayList<>();
 }
