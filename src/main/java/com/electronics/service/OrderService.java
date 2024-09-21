@@ -20,4 +20,6 @@ public interface OrderService {
 	//get all orders of all users for admin
 	PageableResponse<OrderDto> getAllOrders(int pageNumber, int pageSize, String sortBy, String sortDir);
 	
+	OrderDto update(CreateOrderRequestDto createOrderRequestDto,String orderId);
+	
 }

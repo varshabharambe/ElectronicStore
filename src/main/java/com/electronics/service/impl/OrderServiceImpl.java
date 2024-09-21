@@ -81,12 +81,12 @@ public class OrderServiceImpl implements OrderService{
 		order.setOrderItems(orderItems);
 		order.setOrderAmount(orderAmount.get());
 		
+		//save order
+		Order savedOrder = orderRepository.save(order);
+		
 		//clear cart and save
 		cart.getCartItems().clear();
 		cartRepository.save(cart);
-		
-		//save order
-		Order savedOrder = orderRepository.save(order);
 		
 		return mapper.map(savedOrder, OrderDto.class);
 	}
@@ -114,6 +114,19 @@ public class OrderServiceImpl implements OrderService{
 		Pageable pageable = PageRequest.of(pageNumber, pageSize);
 		Page<Order> allOrders = orderRepository.findAll(pageable);
 		return Helper.getPageableResponse(allOrders, OrderDto.class);
+	}
+
+	@Override
+	public OrderDto update(CreateOrderRequestDto dto, String orderId) {
+//		User user = userRepository.findById(dto.getUserId()).orElseThrow(()->new ResourceNotFoundException("User not found with given id !!"));
+		Order order = orderRepository.findById(orderId).orElseThrow(()->new ResourceNotFoundException("Order not found with given id !!"));
+		order.setPaymentStatus(dto.getPaymentStatus());
+		order.setOrderStatus(dto.getOrderStatus());
+		order.setDeliveredDate(new Date());
+		
+		Order savedOrder = orderRepository.save(order);
+	
+		return mapper.map(savedOrder, OrderDto.class);
 	}
 
 }

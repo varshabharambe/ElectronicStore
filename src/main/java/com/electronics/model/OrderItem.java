@@ -31,7 +31,10 @@ public class OrderItem {
 	
 	private int totalPrice;
 	
-	@OneToOne
+//	@OneToOne
+//	@JoinColumn(name = "product_id")
+//	private Product product;
+	@ManyToOne
 	@JoinColumn(name = "product_id")
 	private Product product;
 	

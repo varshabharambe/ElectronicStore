@@ -45,7 +45,7 @@ public class OrderController {
 		return new ResponseEntity<ApiResponseMessage>(response,HttpStatus.OK);
 	}
 	
-	@GetMapping("/userId")
+	@GetMapping("/{userId}")
 	public ResponseEntity<List<OrderDto>> getOrdersOfUser(@PathVariable String userId){
 		List<OrderDto> orders = orderService.getOrdersOfUser(userId);
 		return new ResponseEntity<List<OrderDto>>(orders,HttpStatus.OK);
@@ -55,10 +55,16 @@ public class OrderController {
 	public ResponseEntity<PageableResponse<OrderDto>> getAllOrders(
 			@RequestParam(value="pageNumber", defaultValue = "0",required = false)int pageNumber,
 			@RequestParam(value="pageSize", defaultValue = "10",required = false)int pageSize,
-			@RequestParam(value="sortBy", defaultValue = "title",required = false)String sortBy,
-			@RequestParam(value="sortDir", defaultValue = "ASC",required = false)String sortDir
+			@RequestParam(value="sortBy", defaultValue = "orderedDate",required = false)String sortBy,
+			@RequestParam(value="sortDir", defaultValue = "desc",required = false)String sortDir
 			){
 		PageableResponse<OrderDto> orders = orderService.getAllOrders(pageNumber, pageSize, sortBy, sortDir);
 		return new ResponseEntity<PageableResponse<OrderDto>>(orders,HttpStatus.OK);
+	}
+	
+	@PostMapping("/{orderId}")
+	public ResponseEntity<OrderDto> updateOrder(@Valid @RequestBody CreateOrderRequestDto dto,@PathVariable String orderId){
+		OrderDto order = orderService.update(dto, orderId);
+		return new ResponseEntity<OrderDto>(order,HttpStatus.OK);
 	}
 }
