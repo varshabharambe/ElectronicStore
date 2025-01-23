@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.electronics.dto.PageableResponse;
@@ -39,6 +40,9 @@ public class UserServiceImpl implements UserService{
 	@Autowired
 	private ModelMapper mapper;
 	
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+	
 	@Value("${user.profile.image.path}")
 	private String imagePath;
 
@@ -46,6 +50,7 @@ public class UserServiceImpl implements UserService{
 	public UserDto createUser(UserDto userDto) {
 		String userId = UUID.randomUUID().toString();
 		userDto.setId(userId);
+		userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
 		User user = dtoToEntity(userDto);
 		User savedUser = userRepository.save(user);
 		UserDto dto = entityToDto(savedUser);
