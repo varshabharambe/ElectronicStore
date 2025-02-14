@@ -1,5 +1,9 @@
 package com.electronics.dto;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import com.electronics.model.Role;
 import com.electronics.validate.ImageNameValid;
 
 import jakarta.validation.constraints.Email;
@@ -40,4 +44,6 @@ public class UserDto {
 	
 	@ImageNameValid
 	private String imageName;
+	
+	private Set<RoleDto> roles=new HashSet<>();
 }

@@ -25,7 +25,9 @@ import com.electronics.dto.PageableResponse;
 import com.electronics.dto.UserDto;
 import com.electronics.exception.ResourceNotFoundException;
 import com.electronics.helper.Helper;
+import com.electronics.model.Role;
 import com.electronics.model.User;
+import com.electronics.repository.RoleRepository;
 import com.electronics.repository.UserRepository;
 import com.electronics.service.UserService;
 
@@ -45,13 +47,25 @@ public class UserServiceImpl implements UserService{
 	
 	@Value("${user.profile.image.path}")
 	private String imagePath;
+	
+	@Value("${role.consumer}")
+	private String role_consumer_id;
+	
+	@Autowired
+	private RoleRepository roleRepository;
 
 	@Override
 	public UserDto createUser(UserDto userDto) {
 		String userId = UUID.randomUUID().toString();
 		userDto.setId(userId);
 		userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
+		
 		User user = dtoToEntity(userDto);
+
+		//fetch normal user and set it to user
+		Role role = roleRepository.findById(role_consumer_id).get();
+		user.getRoles().add(role);
+		
 		User savedUser = userRepository.save(user);
 		UserDto dto = entityToDto(savedUser);
 		return dto;
