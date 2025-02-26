@@ -16,8 +16,11 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -57,12 +60,23 @@ public class User implements UserDetails{
 	@OneToMany(mappedBy = "user",fetch = FetchType.LAZY,cascade = CascadeType.REMOVE)
 	private List<Order> orders=new ArrayList<>();
 	
-	@ManyToMany(fetch=FetchType.EAGER,cascade = CascadeType.ALL)
-	private Set<Role> roles=new HashSet<>();
+	@OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
+	private Cart cart;
+	
+//	@ManyToMany(fetch=FetchType.EAGER,cascade = CascadeType.REMOVE)
+//	private Set<Role> roles=new HashSet<>();
+	
+	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+	@JoinTable(
+	    name = "user_roles",
+	    joinColumns = @JoinColumn(name = "user_id"),
+	    inverseJoinColumns = @JoinColumn(name = "role_id")
+	)
+	private Set<Role> roles = new HashSet<>();
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		Set<SimpleGrantedAuthority> authorities = this.roles.stream().map(role -> new SimpleGrantedAuthority(role.getRoleName())).collect(Collectors.toSet());
+		Set<SimpleGrantedAuthority> authorities = this.roles.stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role.getRoleName())).collect(Collectors.toSet());
 		return authorities;
 	}
 

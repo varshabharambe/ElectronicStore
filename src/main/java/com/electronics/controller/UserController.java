@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -68,6 +69,7 @@ public class UserController {
 		return new ResponseEntity<>(message,HttpStatus.OK);
 	}
 	
+	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping
 	public ResponseEntity<PageableResponse<UserDto>> getAllUsers(
 			@RequestParam(value="pageNumber", defaultValue = "0", required = false) int pageNumber,
@@ -77,6 +79,7 @@ public class UserController {
 			){
 		return new ResponseEntity<>(userService.getAllUsers(pageNumber,pageSize,sortBy,sortDir),HttpStatus.OK);
 	}
+	
 	
 	@GetMapping("/{userId}")
 	public ResponseEntity<UserDto> getUserById(@PathVariable String userId){

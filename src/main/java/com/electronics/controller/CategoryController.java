@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -49,6 +50,7 @@ public class CategoryController {
 	private String categoryImagePath;
 	
 	//create
+	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping
 	public ResponseEntity<CategoryDto> createCategory(@Valid @RequestBody CategoryDto categoryDto){
 		CategoryDto catDto = categoryService.create(categoryDto);
@@ -56,6 +58,7 @@ public class CategoryController {
 	}
 	
 	//update
+	@PreAuthorize("hasRole('ADMIN')")
 	@PutMapping("/{categoryId}")
 	public ResponseEntity<CategoryDto> updateCategory(@RequestBody CategoryDto categoryDto, @PathVariable("categoryId") String categoryId){
 		CategoryDto catDto = categoryService.update(categoryDto, categoryId);
@@ -63,6 +66,7 @@ public class CategoryController {
 	}
 	
 	//delete
+	@PreAuthorize("hasRole('ADMIN')")
 	@DeleteMapping("/{categoryId}")
 	public ResponseEntity<ApiResponseMessage> deleteCategory(@PathVariable("categoryId") String categoryId){
 		categoryService.delete(categoryId);
@@ -90,11 +94,12 @@ public class CategoryController {
 	
 	//get single category
 	@GetMapping("/{categoryId}")
-	public ResponseEntity<CategoryDto> createCategory(@PathVariable("categoryId") String categoryId){
+	public ResponseEntity<CategoryDto> getSingleCategory(@PathVariable("categoryId") String categoryId){
 		CategoryDto catDto = categoryService.getSingleCategoryById(categoryId);
 		return new ResponseEntity<CategoryDto>(catDto,HttpStatus.CREATED);
 	}
 	
+	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping("/image/{categoryId}")
 	public ResponseEntity<ImageResponse> uploadCategoryImage(
 			@RequestParam("categoryImage")MultipartFile file, 
@@ -122,12 +127,14 @@ public class CategoryController {
 		StreamUtils.copy(resource, response.getOutputStream());
 	}
 	
+	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping("/{categoryId}/product")
 	public ResponseEntity<ProductDto> createProductWithCategory(@RequestBody ProductDto productDto, @PathVariable String categoryId){
 		ProductDto savedProductDto= productService.createProductWithCategory(productDto, categoryId);
 		return new ResponseEntity<ProductDto>(savedProductDto,HttpStatus.CREATED);
 	}
 	
+	@PreAuthorize("hasRole('ADMIN')")
 	@PutMapping("/{categoryId}/product/{productId}")
 	public ResponseEntity<ProductDto> addProductInCategory(@PathVariable String categoryId, @PathVariable String productId){
 		ProductDto savedProductDto= productService.addProductInCategory(productId, categoryId);
